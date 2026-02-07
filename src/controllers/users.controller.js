@@ -5,10 +5,11 @@ const jwt = require('jsonwebtoken');
 
 
 
-const register = async (req,res) => {
+const register = async (req,res,next) => {
     const {name,email,password} = req.body;
     if(!name || !email || !password){
-        return res.status(400).json({message:"All fields are required"});
+        res.status(400);
+        throw new Error("All fields are required");
     }
     try{
         const existingUser = await Users.findOne({email});
@@ -35,16 +36,17 @@ const register = async (req,res) => {
 }
 
 
-const login = async (req,res) => {
+const login = async (req,res,next) => {
     const {email,password} = req.body;
     if(!email || !password){
-        return res.status(400).json({message:"All fields are required"});
+        res.status(400);
+        throw new Error("All fields are required");
     }
     try{
         const user = await Users.findOne({email});
         if(!user){
-            res.status(400);
-            throw new Error("No user found with this email");
+            res.status(404);
+            throw new Error("User not found with this email");
         }
         const isMatch = await bcrypt.compare(password,user.password);
         if(!isMatch){
@@ -52,7 +54,7 @@ const login = async (req,res) => {
             throw new Error("Invalid credentials");
         }
         const token = jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:"1h"});
-        return res.status(200).json({Message:"Login successful",token});
+        return res.status(200).json({message:"Login successful",token});
     }catch(error){
         next(error);
     }
