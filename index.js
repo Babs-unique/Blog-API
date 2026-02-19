@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(morgan('dev'));
-app.use(errorHandler);
+
 
 authDbConnection();
 
@@ -33,6 +33,9 @@ app.get('/',(req,res)=>{
 
 app.use('/api/auth',userRoutes);
 app.use('/api/posts',blogRoutes);
+
+
+app.use(errorHandler);
 
 
 app.listen(PORT, () => {
